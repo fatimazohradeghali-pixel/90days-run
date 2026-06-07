@@ -390,6 +390,29 @@ input[type=file]{display:none;}
 .chat-day-divider{text-align:center;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--textMuted);margin:12px 0 8px;display:flex;align-items:center;gap:10px;}
 .chat-day-divider::before,.chat-day-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
+/* ── ONLINE DOT on leaderboard avatars ── */
+.lb-avatar-wrap{position:relative;display:inline-block;}
+.online-dot{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--bg);box-shadow:0 0 6px rgba(34,197,94,.7);}
+.online-dot.offline{background:var(--textMuted);box-shadow:none;}
+
+/* ── SEEN BY ── */
+.msg-seen{font-size:9px;color:var(--textMuted);padding:1px 5px;display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.seen-av{width:14px;height:14px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;border:1px solid var(--border);}
+.seen-av img{width:100%;height:100%;object-fit:cover;}
+
+/* ── EMOJI REACTIONS ── */
+.msg-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;}
+.reaction-pill{display:flex;align-items:center;gap:3px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:3px 8px;font-size:13px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none;}
+.reaction-pill.mine{background:rgba(201,146,42,.12);border-color:rgba(201,146,42,.35);}
+.reaction-pill .r-count{font-size:11px;font-weight:700;color:var(--textMuted);}
+.reaction-pill.mine .r-count{color:var(--gold);}
+
+/* emoji picker */
+.emoji-picker{display:none;position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:8px 10px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:200;gap:4px;flex-wrap:wrap;width:200px;}
+.emoji-picker.open{display:flex;}
+.ep-emoji{font-size:22px;cursor:pointer;padding:4px;border-radius:8px;transition:background .12s;}
+.ep-emoji:active{background:var(--surface2);}
+
 /* message action buttons */
 .msg-actions{display:none;align-items:center;gap:4px;margin-right:6px;align-self:center;}
 .msg-row.mine.show-actions .msg-actions{display:flex;}
@@ -767,7 +790,8 @@ async function cloudPull(){
         name: row.name,
         photo: row.photo,
         days: row.days || {},
-        updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : 0
+        updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : 0,
+        last_seen: row.last_seen || null
       };
     });
     saveCrew(all);
@@ -1600,10 +1624,13 @@ function lbRowFull(u, rank, myUid){
   return `
     <div class="lb-row ${me?'me':''} ${topCls}" data-uid="${u.uid}" style="cursor:${me?'default':'pointer'};animation-delay:${rank*60}ms;">
       <div class="lb-rank">${rankDisplay}</div>
-      <div class="lb-avatar">${avatar}</div>
+      <div class="lb-avatar-wrap">
+        <div class="lb-avatar">${avatar}</div>
+        <div class="online-dot ${isOnline(u)?'':'offline'}"></div>
+      </div>
       <div class="lb-info">
         <div class="lb-name">${escapeHtml(u.name)} ${me?'<span class="lb-you">You</span>':''} ${streakHtml}</div>
-        <div class="lb-meta"><span class="live-dot"></span>${u.perf} perfect · ${ago}</div>
+        <div class="lb-meta"><span class="live-dot"></span>${u.perf} perfect · ${isOnline(u)?'<span style="color:var(--green);font-weight:600;">Online</span>':ago}</div>
       </div>
       <div class="lb-scoreblock">
         <div class="lb-score">${u.score}</div>
@@ -1621,13 +1648,36 @@ let lastMessageTime = null;
 async function loadMessages(){
   const el = document.getElementById('chatMessages');
   try{
+    // update my last_seen so others know I'm online
+    const myUid = getUid();
+    if(myUid){
+      fetch(sbUrl('/users?id=eq.'+myUid), {
+        method:'PATCH', headers: sbHeaders(),
+        body: JSON.stringify({last_seen: new Date().toISOString()})
+      }).catch(()=>{});
+    }
     const r = await fetch(sbUrl('/messages?select=*&order=created_at.asc&limit=100'), { headers: sbHeaders() });
     if(!r.ok) throw new Error('fetch failed');
     const msgs = await r.json();
     renderMessages(msgs);
+    // mark last message as seen by me
+    markSeen(msgs, myUid);
   }catch(e){
     el.innerHTML = `<div style="text-align:center;color:var(--textMuted);font-size:12px;padding:30px;">Could not load messages</div>`;
   }
+}
+
+async function markSeen(msgs, myUid){
+  if(!myUid || !msgs.length) return;
+  const last = msgs[msgs.length-1];
+  if(last.uid === myUid) return; // don't mark own messages
+  const seen = last.seen_by ? (Array.isArray(last.seen_by) ? last.seen_by : JSON.parse(last.seen_by)) : [];
+  if(seen.includes(myUid)) return;
+  seen.push(myUid);
+  fetch(sbUrl('/messages?id=eq.'+last.id), {
+    method:'PATCH', headers: sbHeaders(),
+    body: JSON.stringify({seen_by: seen})
+  }).catch(()=>{});
 }
 
 /* Assign a stable accent color to each non-me user */
@@ -1670,6 +1720,8 @@ function renderMessages(msgs){
     const color = mine ? '' : crewColor(m.uid);
     const gapClass = (!sameAsPrev && idx > 0 && lastUid !== null) ? ' gap-top' : '';
 
+    const reactHtml = buildReactionsHtml(m, mine, myUid);
+    const seenHtml = buildSeenHtml(m, getCrew());
     if(mine){
       html += `
         <div class="msg-row mine${gapClass}" id="msgrow-${m.id}">
@@ -1679,6 +1731,8 @@ function renderMessages(msgs){
           </div>
           <div class="msg-inner mine" oncontextmenu="toggleMsgActions('${m.id}',event)" ontouchstart="startMsgHold('${m.id}')" ontouchend="cancelMsgHold()">
             <div class="msg-bubble mine" id="msgbub-${m.id}">${escapeHtml(m.text)}</div>
+            ${reactHtml}
+            ${seenHtml}
             <div class="msg-time">${timeStr}</div>
           </div>
         </div>`;
@@ -1687,11 +1741,12 @@ function renderMessages(msgs){
       const avHidden = sameAsPrev ? ' hidden' : '';
       const nameHtml = !sameAsPrev ? `<div class="chat-sender" style="color:${color}">${escapeHtml(m.name)}</div>` : '';
       html += `
-        <div class="msg-row other${gapClass}">
+        <div class="msg-row other${gapClass}" id="msgrow-${m.id}">
           <div class="chat-av${avHidden}" style="background:${color}22;border-color:${color}44;color:${color}">${avContent}</div>
-          <div class="msg-inner other">
+          <div class="msg-inner other" ontouchstart="startMsgHold('${m.id}','react')" ontouchend="cancelMsgHold()" oncontextmenu="showEmojiPicker('${m.id}',event)">
             ${nameHtml}
             <div class="msg-bubble other" style="border-color:${color}22;">${escapeHtml(m.text)}</div>
+            ${reactHtml}
             <div class="msg-time">${timeStr}</div>
           </div>
         </div>`;
@@ -1703,9 +1758,86 @@ function renderMessages(msgs){
   if(msgs.length) lastMessageTime = msgs[msgs.length-1].created_at;
 }
 
+/* ── ONLINE: check if user is online (last_seen < 2min ago) ── */
+function isOnline(user){
+  if(!user || !user.last_seen) return false;
+  return (Date.now() - new Date(user.last_seen).getTime()) < 2 * 60 * 1000;
+}
+
+/* ── REACTIONS helpers ── */
+const QUICK_EMOJIS = ['👍','❤️','😂','🔥','💪','😮','😢','🫡'];
+
+function buildReactionsHtml(m, mine, myUid){
+  const reactions = m.reactions ? (typeof m.reactions === 'string' ? JSON.parse(m.reactions) : m.reactions) : {};
+  if(!Object.keys(reactions).length) return `<div class="msg-reactions" id="reacts-${m.id}"><button class="reaction-pill" style="opacity:.4;font-size:11px;" onclick="showEmojiPicker('${m.id}',event)">😊 +</button></div>`;
+  let html = `<div class="msg-reactions" id="reacts-${m.id}">`;
+  for(const [emoji, uids] of Object.entries(reactions)){
+    if(!uids.length) continue;
+    const iMine = uids.includes(myUid);
+    html += `<div class="reaction-pill${iMine?' mine':''}" onclick="toggleReaction('${m.id}','${emoji}')">
+      ${emoji}<span class="r-count">${uids.length}</span>
+    </div>`;
+  }
+  html += `<button class="reaction-pill" style="opacity:.4;font-size:11px;padding:2px 6px;" onclick="showEmojiPicker('${m.id}',event)">+</button>`;
+  html += `</div>`;
+  return html;
+}
+
+function buildSeenHtml(m, crew){
+  const seen = m.seen_by ? (Array.isArray(m.seen_by) ? m.seen_by : JSON.parse(m.seen_by)) : [];
+  if(!seen.length) return '';
+  let html = `<div class="msg-seen">👁️`;
+  seen.forEach(uid=>{
+    const u = crew[uid];
+    if(!u) return;
+    const av = u.photo ? `<img src="${u.photo}" alt=""/>` : (u.name||'?').charAt(0);
+    html += `<span class="seen-av" title="${escapeHtml(u.name||'')}">${av}</span>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function showEmojiPicker(msgId, e){
+  e.preventDefault(); e.stopPropagation();
+  const picker = document.getElementById('emojiPicker');
+  picker.innerHTML = QUICK_EMOJIS.map(em =>
+    `<span class="ep-emoji" onclick="toggleReaction('${msgId}','${em}');closePicker()">${em}</span>`
+  ).join('');
+  // position near the tap
+  const x = Math.min(e.clientX || (e.touches&&e.touches[0]?e.touches[0].clientX:100), window.innerWidth-210);
+  const y = Math.max((e.clientY || (e.touches&&e.touches[0]?e.touches[0].clientY:200)) - 60, 60);
+  picker.style.left = x+'px';
+  picker.style.top = y+'px';
+  picker.classList.add('open');
+  setTimeout(()=>document.addEventListener('click', closePicker, {once:true}), 50);
+}
+function closePicker(){ document.getElementById('emojiPicker').classList.remove('open'); }
+
+async function toggleReaction(msgId, emoji){
+  const myUid = getUid(); if(!myUid) return;
+  // fetch current reactions for this message
+  try{
+    const r = await fetch(sbUrl('/messages?id=eq.'+msgId+'&select=reactions'), {headers: sbHeaders()});
+    const rows = await r.json();
+    const reactions = rows[0]?.reactions ? (typeof rows[0].reactions==='string'?JSON.parse(rows[0].reactions):rows[0].reactions) : {};
+    if(!reactions[emoji]) reactions[emoji] = [];
+    const idx = reactions[emoji].indexOf(myUid);
+    if(idx > -1) reactions[emoji].splice(idx,1); // untoggle
+    else reactions[emoji].push(myUid);            // toggle on
+    await fetch(sbUrl('/messages?id=eq.'+msgId), {
+      method:'PATCH', headers: sbHeaders(),
+      body: JSON.stringify({reactions})
+    });
+    await loadMessages();
+  }catch(e){ console.warn('reaction failed',e); }
+}
+
 let _holdTimer = null;
-function startMsgHold(id){
-  _holdTimer = setTimeout(()=>{ toggleMsgActions(id); }, 500);
+function startMsgHold(id, mode){
+  _holdTimer = setTimeout(()=>{
+    if(mode==='react') showEmojiPicker(id, {preventDefault:()=>{},stopPropagation:()=>{},clientX:window.innerWidth/2,clientY:window.innerHeight/2});
+    else toggleMsgActions(id);
+  }, 500);
 }
 function cancelMsgHold(){ clearTimeout(_holdTimer); }
 
@@ -1818,5 +1950,6 @@ window.addEventListener('load', ()=>{
   }, 3200);
 });
 </script>
+<div id="emojiPicker" class="emoji-picker"></div>
 </body>
 </html>
