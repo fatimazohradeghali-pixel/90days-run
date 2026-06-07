@@ -420,7 +420,8 @@ input[type=file]{display:none;}
 .msg-ctx-bubble{position:fixed;z-index:302;max-width:75%;pointer-events:none;transition:opacity .15s;}
 
 /* quick-emoji bar above bubble */
-.msg-ctx-emojis{position:fixed;z-index:303;display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px 10px;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+.msg-ctx-emojis{position:fixed;z-index:303;display:none;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px 10px;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+.msg-ctx-emojis.open{display:flex;}
 .ctx-emoji{font-size:26px;cursor:pointer;padding:4px 5px;border-radius:50%;transition:transform .12s,background .12s;}
 .ctx-emoji:active{transform:scale(1.25);}
 .ctx-emoji.reacted{background:rgba(201,146,42,.2);}
@@ -1832,7 +1833,7 @@ function openMsgCtx(msgId, text, isMine, e){
   const myUid = getUid();
   ctxEmojis.innerHTML = QUICK_EMOJIS.map(em => {
     const reacted = reactions[em]&&reactions[em].includes(myUid);
-    return `<span class="ctx-emoji${reacted?' reacted':''}" onclick="toggleReaction('${msgId}','${em}');closeMsgCtx()">${em}</span>`;
+    return `<span class="ctx-emoji${reacted?' reacted':''}" onclick="toggleReaction('${msgId}','${em}')">${em}</span>`;
   }).join('');
   const bubbleTop = ctxBubble.style.top ? parseInt(ctxBubble.style.top) : 200;
   ctxEmojis.style.cssText = `position:fixed;z-index:303;
@@ -1854,19 +1855,15 @@ function openMsgCtx(msgId, text, isMine, e){
 
   // open everything
   document.getElementById('msgCtxOverlay').classList.add('open');
+  document.getElementById('msgCtxEmojis').classList.add('open');
   setTimeout(()=>document.getElementById('msgCtxSheet').classList.add('open'), 10);
 }
 
 function closeMsgCtx(){
   document.getElementById('msgCtxOverlay').classList.remove('open');
   document.getElementById('msgCtxSheet').classList.remove('open');
-  document.getElementById('msgCtxEmojis').style.display = 'none';
-  document.getElementById('msgCtxBubble').style.opacity = '0';
-  setTimeout(()=>{
-    document.getElementById('msgCtxBubble').innerHTML = '';
-    document.getElementById('msgCtxBubble').style.opacity = '';
-    document.getElementById('msgCtxEmojis').style.display = '';
-  }, 260);
+  document.getElementById('msgCtxEmojis').classList.remove('open');
+  document.getElementById('msgCtxBubble').innerHTML = '';
   _ctxMsgId = null;
 }
 
