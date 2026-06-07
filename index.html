@@ -390,6 +390,13 @@ input[type=file]{display:none;}
 .chat-day-divider{text-align:center;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--textMuted);margin:12px 0 8px;display:flex;align-items:center;gap:10px;}
 .chat-day-divider::before,.chat-day-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
+/* message action buttons */
+.msg-actions{display:none;align-items:center;gap:4px;margin-right:6px;align-self:center;}
+.msg-row.mine.show-actions .msg-actions{display:flex;}
+.msg-act-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:5px 8px;font-size:14px;cursor:pointer;transition:background .15s;}
+.msg-act-btn:active{background:var(--border);}
+.msg-act-btn.del:active{background:rgba(239,68,68,.2);}
+
 /* weekly winner banner */
 .weekly-winner{background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(232,184,75,.05));border:1px solid rgba(201,146,42,.3);border-radius:16px;padding:14px 16px;margin:0 16px 16px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
 .weekly-winner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
@@ -502,7 +509,7 @@ input[type=file]{display:none;}
       <div class="tab active" onclick="switchTab('me',this)">Today</div>
       <div class="tab" onclick="switchTab('lb',this)">🏆 Crew</div>
       <div class="tab" onclick="switchTab('grid',this)">90 Days</div>
-      <div class="tab" onclick="switchTab('chat',this)">💬</div>
+      <div class="tab" onclick="switchTab('chat',this)">Chat</div>
     </div>
 
     <!-- TODAY TAB -->
@@ -602,7 +609,7 @@ input[type=file]{display:none;}
       <div class="tab" onclick="switchTab('me',this)">Today</div>
       <div class="tab" onclick="switchTab('lb',this)">🏆 Crew</div>
       <div class="tab" onclick="switchTab('grid',this)">90 Days</div>
-      <div class="tab active">💬</div>
+      <div class="tab active">Chat</div>
     </div>
     <!-- small chat label -->
     <div class="chat-header" style="padding:10px 16px 6px;">
@@ -1665,9 +1672,13 @@ function renderMessages(msgs){
 
     if(mine){
       html += `
-        <div class="msg-row mine${gapClass}">
-          <div class="msg-inner mine">
-            <div class="msg-bubble mine">${escapeHtml(m.text)}</div>
+        <div class="msg-row mine${gapClass}" id="msgrow-${m.id}">
+          <div class="msg-actions" id="msgact-${m.id}">
+            <button class="msg-act-btn edit" onclick="editMessage('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}')">✏️</button>
+            <button class="msg-act-btn del" onclick="deleteMessage('${m.id}')">🗑️</button>
+          </div>
+          <div class="msg-inner mine" oncontextmenu="toggleMsgActions('${m.id}',event)" ontouchstart="startMsgHold('${m.id}')" ontouchend="cancelMsgHold()">
+            <div class="msg-bubble mine" id="msgbub-${m.id}">${escapeHtml(m.text)}</div>
             <div class="msg-time">${timeStr}</div>
           </div>
         </div>`;
@@ -1692,25 +1703,83 @@ function renderMessages(msgs){
   if(msgs.length) lastMessageTime = msgs[msgs.length-1].created_at;
 }
 
+let _holdTimer = null;
+function startMsgHold(id){
+  _holdTimer = setTimeout(()=>{ toggleMsgActions(id); }, 500);
+}
+function cancelMsgHold(){ clearTimeout(_holdTimer); }
+
+function toggleMsgActions(id, e){
+  if(e) e.preventDefault();
+  // hide all others first
+  document.querySelectorAll('.msg-row.mine.show-actions').forEach(r=>{
+    if(r.id !== 'msgrow-'+id) r.classList.remove('show-actions');
+  });
+  const row = document.getElementById('msgrow-'+id);
+  if(row) row.classList.toggle('show-actions');
+}
+
+async function deleteMessage(id){
+  if(!confirm('Delete this message?')) return;
+  const row = document.getElementById('msgrow-'+id);
+  if(row){ row.style.opacity='0.4'; row.style.pointerEvents='none'; }
+  try{
+    await fetch(sbUrl('/messages?id=eq.'+id), { method:'DELETE', headers: sbHeaders() });
+    await loadMessages();
+  }catch(e){ showToast('Delete failed'); if(row){ row.style.opacity=''; row.style.pointerEvents=''; } }
+}
+
+async function editMessage(id, currentText){
+  // hide actions
+  const row = document.getElementById('msgrow-'+id);
+  if(row) row.classList.remove('show-actions');
+  const input = document.getElementById('chatInput');
+  input.value = currentText;
+  input.focus();
+  input.dataset.editId = id;
+  input.placeholder = 'Edit message...';
+  // change send button to confirm
+  const btn = document.querySelector('.chat-send');
+  btn.textContent = '✓';
+  btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+}
+
 async function sendMessage(){
   const input = document.getElementById('chatInput');
   const text = (input.value||'').trim();
   if(!text) return;
+  const editId = input.dataset.editId;
+  // reset input state
   input.value = '';
+  input.placeholder = 'Say something...';
+  delete input.dataset.editId;
+  const btn = document.querySelector('.chat-send');
+  btn.textContent = '→';
+  btn.style.background = '';
+
   const p = getProfile()||{};
   try{
     const headers = sbHeaders();
     headers['Prefer'] = 'return=representation';
-    await fetch(sbUrl('/messages'), {
-      method:'POST',
-      headers,
-      body: JSON.stringify({
-        uid: getUid(),
-        name: p.name||'Anon',
-        photo: p.photo||null,
-        text
-      })
-    });
+    if(editId){
+      // PATCH existing message
+      await fetch(sbUrl('/messages?id=eq.'+editId), {
+        method:'PATCH',
+        headers,
+        body: JSON.stringify({ text })
+      });
+    } else {
+      await fetch(sbUrl('/messages'), {
+        method:'POST',
+        headers,
+        body: JSON.stringify({
+          uid: getUid(),
+          name: p.name||'Anon',
+          photo: p.photo||null,
+          text
+        })
+      });
+    }
     await loadMessages();
   }catch(e){ showToast('Failed to send'); input.value = text; }
 }
