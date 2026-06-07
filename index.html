@@ -319,38 +319,37 @@ input[type=file]{display:none;}
 .milestone-label{font-size:7px;color:var(--textMuted);text-align:center;line-height:1.3;}
 .milestone.unlocked .milestone-label{color:var(--text);}
 
+
+
 /* ===== CHAT ===== */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 122px);overflow:hidden;}
-.chat-header{text-align:center;padding:14px 16px 8px;flex-shrink:0;border-bottom:1px solid var(--border);}
-.chat-title{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:-1px;}
+.chat-header{text-align:center;padding:10px 16px 8px;flex-shrink:0;border-bottom:1px solid var(--border);}
+.chat-title{font-family:var(--display);font-size:24px;font-weight:400;letter-spacing:-1px;}
 .chat-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--goldLight));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.chat-sub{font-size:8px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--textMuted);margin-top:2px;}
-.chat-messages{flex:1;overflow-y:auto;padding:12px 14px 8px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;scrollbar-width:none;}
+.chat-sub{font-size:8px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--textMuted);margin-top:1px;}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;scrollbar-width:none;}
 .chat-messages::-webkit-scrollbar{display:none;}
-.chat-msg{display:flex;gap:8px;align-items:flex-end;animation:msgIn .25s ease both;}
-@keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.chat-msg.mine{flex-direction:row-reverse;}
-
-.chat-av{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:10px;color:var(--gold);flex-shrink:0;align-self:flex-end;margin-bottom:2px;}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.msg-row{width:100%;display:flex;animation:msgIn .2s ease both;}
+.msg-row.mine{justify-content:flex-end;}
+.msg-row.other{justify-content:flex-start;align-items:flex-end;gap:6px;}
+.chat-av{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:10px;color:var(--gold);flex-shrink:0;}
 .chat-av img{width:100%;height:100%;object-fit:cover;}
-.chat-msg.mine .chat-av{display:none;}
-.chat-bubble-wrap{display:flex;flex-direction:column;gap:2px;max-width:78%;}
-.chat-msg.mine .chat-bubble-wrap{align-items:flex-end;}
-.chat-msg:not(.mine) .chat-bubble-wrap{align-items:flex-start;}
-.chat-sender{font-size:9px;font-weight:700;color:var(--textMuted);letter-spacing:.5px;padding:0 6px;}
-.chat-bubble{padding:9px 14px;border-radius:20px;font-size:14px;font-weight:500;line-height:1.4;word-break:break-word;}
-.chat-bubble.other{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);}
-.chat-bubble.mine{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#080600;border-bottom-right-radius:4px;}
-.chat-meta{display:flex;align-items:center;gap:4px;padding:0 6px;}
-.chat-msg.mine .chat-meta{justify-content:flex-end;}
-.chat-time{font-size:8px;color:var(--textMuted);}
-.chat-input-wrap{flex-shrink:0;display:flex;gap:8px;padding:12px 14px 24px;border-top:1px solid var(--border);background:var(--bg);}
+.msg-inner{display:flex;flex-direction:column;gap:2px;max-width:75%;}
+.msg-inner.mine{align-items:flex-end;}
+.msg-inner.other{align-items:flex-start;}
+.chat-sender{font-size:9px;font-weight:700;color:var(--textMuted);padding:0 4px;}
+.msg-bubble{padding:9px 13px;font-size:14px;font-weight:500;line-height:1.4;word-break:break-word;border-radius:18px;}
+.msg-bubble.mine{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#080600;border-bottom-right-radius:3px;}
+.msg-bubble.other{background:var(--surface);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:3px;}
+.msg-time{font-size:8px;color:var(--textMuted);padding:0 4px;}
+.chat-input-wrap{flex-shrink:0;display:flex;gap:8px;padding:10px 12px 20px;border-top:1px solid var(--border);background:var(--bg);}
 .chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:10px 15px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
 .chat-input:focus{border-color:rgba(201,146,42,.4);}
 .chat-input::placeholder{color:var(--textMuted);}
 .chat-send{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#080600;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(201,146,42,.35);transition:transform .15s;}
 .chat-send:active{transform:scale(.88);}
-.chat-day-divider{text-align:center;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--textMuted);margin:8px 0;display:flex;align-items:center;gap:8px;}
+.chat-day-divider{text-align:center;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--textMuted);margin:4px 0;display:flex;align-items:center;gap:8px;}
 .chat-day-divider::before,.chat-day-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
 /* weekly winner banner */
@@ -1568,12 +1567,12 @@ function renderMessages(msgs){
     const av = m.photo ? `<img src="${m.photo}" alt=""/>` : ini;
     const isLast = idx === msgs.length - 1;
     html += `
-      <div style="display:flex;width:100%;justify-content:${mine?'flex-end':'flex-start'};align-items:flex-end;gap:8px;margin-bottom:2px;">
-        ${!mine ? `<div class="chat-av">${av}</div>` : ''}
-        <div style="display:flex;flex-direction:column;align-items:${mine?'flex-end':'flex-start'};max-width:80%;gap:2px;">
-          ${!mine ? `<div class="chat-sender">${escapeHtml(m.name)}</div>` : ''}
-          <div class="chat-bubble ${mine?'mine':'other'}">${escapeHtml(m.text)}</div>
-          <div class="chat-time" style="padding:0 6px;">${timeStr}</div>
+      <div class="msg-row ${mine?'mine':'other'}">
+        ${!mine?`<div class="chat-av">${av}</div>`:''}
+        <div class="msg-inner ${mine?'mine':'other'}">
+          ${!mine?`<div class="chat-sender">${escapeHtml(m.name)}</div>`:''}
+          <div class="msg-bubble ${mine?'mine':'other'}">${escapeHtml(m.text)}</div>
+          <div class="msg-time">${timeStr}</div>
         </div>
       </div>`;
   });
