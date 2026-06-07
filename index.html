@@ -333,18 +333,17 @@ input[type=file]{display:none;}
 
 /* Each message row */
 .msg-row{width:100%;display:flex;margin-bottom:2px;animation:msgIn .18s ease both;}
-.msg-row.mine{justify-content:flex-end;padding-left:60px;}
-.msg-row.other{justify-content:flex-start;padding-right:60px;align-items:flex-end;gap:7px;}
+.msg-row.mine{justify-content:flex-end;align-items:flex-end;padding-left:55px;}
+.msg-row.other{justify-content:flex-start;align-items:flex-end;gap:7px;padding-right:55px;}
 
 /* Avatar for others */
 .chat-av{width:28px;height:28px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1.5px solid var(--border);}
 .chat-av img{width:100%;height:100%;object-fit:cover;}
-/* Placeholder avatar hides on consecutive messages from same sender */
 .chat-av.hidden{opacity:0;pointer-events:none;}
 
 /* Bubble column */
-.msg-inner{display:flex;flex-direction:column;gap:1px;max-width:100%;}
-.msg-inner.mine{align-items:flex-end;}
+.msg-inner{display:flex;flex-direction:column;gap:1px;max-width:75%;}
+.msg-inner.mine{align-items:flex-end;margin-left:auto;}
 .msg-inner.other{align-items:flex-start;}
 
 /* Sender name (only on first in a group) */
