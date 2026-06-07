@@ -305,6 +305,62 @@ input[type=file]{display:none;}
 .settings-label{flex:1;font-size:14px;font-weight:600;}
 .settings-arrow{font-size:14px;color:var(--textMuted);}
 .settings-row.danger .settings-label{color:var(--red);}
+/* ===== MILESTONES ===== */
+.milestones-section{padding:0 16px 20px;}
+.milestones-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.milestones-row::-webkit-scrollbar{display:none;}
+.milestone{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;background:var(--surface);border:1px solid var(--border);border-radius:14px;position:relative;overflow:hidden;}
+.milestone.unlocked{border-color:rgba(201,146,42,.4);background:linear-gradient(135deg,rgba(201,146,42,.1),var(--surface));}
+.milestone.unlocked::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.milestone-icon{font-size:24px;filter:grayscale(1);opacity:.3;}
+.milestone.unlocked .milestone-icon{filter:none;opacity:1;}
+.milestone-day{font-size:8px;font-weight:700;letter-spacing:1px;color:var(--textMuted);text-transform:uppercase;}
+.milestone.unlocked .milestone-day{color:var(--gold);}
+.milestone-label{font-size:7px;color:var(--textMuted);text-align:center;line-height:1.3;}
+.milestone.unlocked .milestone-label{color:var(--text);}
+
+/* ===== CHAT ===== */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px);padding:0;}
+.chat-header{text-align:center;padding:20px 16px 12px;}
+.chat-title{font-family:var(--display);font-size:32px;font-weight:400;letter-spacing:-1px;}
+.chat-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--goldLight));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.chat-sub{font-size:9px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--textMuted);margin-top:4px;}
+.chat-messages{flex:1;overflow-y:auto;padding:8px 16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;}
+.chat-messages::-webkit-scrollbar{display:none;}
+.chat-msg{display:flex;gap:8px;align-items:flex-end;animation:msgIn .3s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.chat-msg.mine{flex-direction:row-reverse;}
+.chat-av{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:11px;color:var(--gold);flex-shrink:0;}
+.chat-av img{width:100%;height:100%;object-fit:cover;}
+.chat-bubble-wrap{display:flex;flex-direction:column;gap:2px;max-width:72%;}
+.chat-msg.mine .chat-bubble-wrap{align-items:flex-end;}
+.chat-sender{font-size:9px;font-weight:700;color:var(--textMuted);letter-spacing:.5px;padding:0 4px;}
+.chat-bubble{padding:10px 14px;border-radius:18px;font-size:13px;line-height:1.4;word-break:break-word;}
+.chat-msg:not(.mine) .chat-bubble{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);}
+.chat-msg.mine .chat-bubble{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#080600;border-bottom-right-radius:4px;font-weight:500;}
+.chat-time{font-size:8px;color:var(--textMuted);padding:0 4px;}
+.chat-input-wrap{display:flex;gap:8px;padding:10px 16px 20px;border-top:1px solid var(--border);background:var(--bg);}
+.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:11px 16px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+.chat-input:focus{border-color:rgba(201,146,42,.4);}
+.chat-input::placeholder{color:var(--textMuted);}
+.chat-send{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#080600;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;}
+.chat-send:active{transform:scale(.9);}
+.chat-day-divider{text-align:center;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--textMuted);margin:4px 0;}
+
+/* weekly winner banner */
+.weekly-winner{background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(232,184,75,.05));border:1px solid rgba(201,146,42,.3);border-radius:16px;padding:14px 16px;margin:0 16px 16px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
+.weekly-winner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.ww-icon{font-size:28px;}
+.ww-info{flex:1;}
+.ww-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.ww-name{font-family:var(--display);font-size:18px;font-weight:400;line-height:1.1;}
+.ww-sub{font-size:9px;color:var(--textMuted);margin-top:2px;}
+
+/* streak badge on lb row */
+.streak-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:#ef4444;white-space:nowrap;}
+.streak-badge.hot{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25);color:var(--amber);}
+.streak-badge.fire{background:rgba(201,146,42,.12);border-color:rgba(201,146,42,.25);color:var(--gold);}
+
 ::-webkit-scrollbar{width:0;}
 </style>
 </head>
@@ -403,6 +459,7 @@ input[type=file]{display:none;}
       <div class="tab active" onclick="switchTab('me',this)">Today</div>
       <div class="tab" onclick="switchTab('lb',this)">🏆 Crew</div>
       <div class="tab" onclick="switchTab('grid',this)">90 Days</div>
+      <div class="tab" onclick="switchTab('chat',this)">💬</div>
     </div>
 
     <!-- TODAY TAB -->
@@ -432,6 +489,8 @@ input[type=file]{display:none;}
           <div class="stat-pill"><div class="stat-n" id="sLeft">90</div><div class="stat-l">Left</div></div>
         </div>
       </div>
+      <div class="milestones-section" id="milestonesSection"></div>
+
       <div class="today-section" id="todaySec">
         <div class="sec-lbl">Today</div>
         <div class="t-card">
@@ -470,6 +529,23 @@ input[type=file]{display:none;}
         <div id="grid"></div>
       </div>
     </div>
+
+    <!-- CHAT TAB -->
+    <div id="tabChat" class="tab-content" style="display:none;">
+      <div class="chat-wrap">
+        <div class="chat-header">
+          <div class="chat-title"><em>Crew</em> Chat</div>
+          <div class="chat-sub">Just the squad</div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="lb-loading"><div class="lb-spinner"></div><span>Loading...</span></div>
+        </div>
+        <div class="chat-input-wrap">
+          <input class="chat-input" id="chatInput" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMessage();event.preventDefault();}"/>
+          <button class="chat-send" onclick="sendMessage()">→</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -478,7 +554,7 @@ input[type=file]{display:none;}
   <div class="sheet" id="sheet">
     <div class="sh-handle"></div>
     <div class="sh-inner">
-      <div class="sh-banner">🔒 Past Day — View Only</div>
+      <div class="sh-banner" id="shBanner">✏️ Tap any habit to update</div>
       <div class="sh-daynum" id="shDay"></div>
       <div class="sh-date" id="shDate"></div>
       <div class="sh-habits" id="shHabits"></div>
@@ -905,8 +981,7 @@ function enterApp(){
   document.getElementById('meName').textContent=p.name;
   setTopPhoto(p.photo||null);
   showScreen('screenApp');
-  buildToday(); buildGrid(); updateStats(); updateFab();
-  // initial cloud sync — only if Supabase is set up
+  buildToday(); buildGrid(); updateStats(); updateFab(); buildMilestones();
   if(getSupabase()){
     cloudPush().then(()=>cloudPull()).then(()=>{
       startAutoSync();
@@ -925,11 +1000,13 @@ function switchTab(tab,el){
   document.getElementById('tabMe').style.display   = tab==='me'   ? 'block' : 'none';
   document.getElementById('tabLb').style.display   = tab==='lb'   ? 'block' : 'none';
   document.getElementById('tabGrid').style.display = tab==='grid' ? 'block' : 'none';
-  // re-trigger fade animation
-  const t = document.getElementById('tab'+(tab==='me'?'Me':tab==='lb'?'Lb':'Grid'));
-  t.style.animation='none'; void t.offsetWidth; t.style.animation='';
+  document.getElementById('tabChat').style.display = tab==='chat' ? 'flex'  : 'none';
+  const idMap = {me:'Me',lb:'Lb',grid:'Grid',chat:'Chat'};
+  const t = document.getElementById('tab'+idMap[tab]);
+  if(t){ t.style.animation='none'; void t.offsetWidth; t.style.animation=''; }
   if(tab==='grid') buildGrid();
   if(tab==='lb') { renderLeaderboard(); cloudPull().then(renderLeaderboard); }
+  if(tab==='chat') { loadMessages(); startChatSync(); }
 }
 
 /* ============================================================
@@ -1069,72 +1146,6 @@ function updateStats(){
 /* ============================================================
    LEADERBOARD
    ============================================================ */
-function renderLeaderboard(){
-  const body = document.getElementById('lbBody');
-
-  const crew = getCrew();
-  const myUid = getUid();
-  // ensure my latest is in the crew obj for instant render
-  const p = getProfile() || {};
-  crew[myUid] = crew[myUid] || {};
-  crew[myUid].name = p.name || 'You';
-  crew[myUid].photo = p.photo || null;
-  crew[myUid].days = getDays();
-  crew[myUid].updatedAt = Date.now();
-
-  const list = Object.entries(crew).map(([uid,u])=>{
-    const {score,perf} = computeScore(u.days||{});
-    return { uid, name:u.name||'Anon', photo:u.photo, score, perf, updatedAt:u.updatedAt||0, days:u.days||{} };
-  }).sort((a,b)=>{
-    if(b.score !== a.score) return b.score - a.score;
-    return (b.perf||0) - (a.perf||0);
-  });
-
-  if(list.length === 0){
-    body.innerHTML = `<div class="lb-empty"><div class="lb-empty-emoji">👥</div>No one in the crew yet.<br>Share your code with your friends.</div>`;
-    return;
-  }
-
-  // Classification list only
-  const listHtml = `<div class="lb-list">${list.map((u,idx)=>lbRow(u,idx+1,myUid)).join('')}</div>`;
-
-  body.innerHTML = listHtml + `
-    <div class="crew-footer">
-      <button class="crew-mini-btn" onclick="syncNow()">↻ Refresh</button>
-    </div>
-  `;
-
-  // wire click to open friend view
-  document.querySelectorAll('[data-uid]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const uid = el.getAttribute('data-uid');
-      if(uid !== myUid) openFriendView(uid);
-    });
-  });
-}
-
-function lbRow(u, rank, myUid){
-  const me = u.uid === myUid;
-  const ini = (u.name||'?').charAt(0).toUpperCase();
-  const avatar = u.photo ? `<img src="${u.photo}" alt=""/>` : ini;
-  const ago = u.updatedAt ? timeAgo(u.updatedAt) : 'never';
-  const topCls = rank===1?'top1':rank===2?'top2':rank===3?'top3':'';
-  const rankDisplay = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
-  return `
-    <div class="lb-row ${me?'me':''} ${topCls}" data-uid="${u.uid}" style="cursor:${me?'default':'pointer'};animation-delay:${rank*60}ms;">
-      <div class="lb-rank">${rankDisplay}</div>
-      <div class="lb-avatar">${avatar}</div>
-      <div class="lb-info">
-        <div class="lb-name">${escapeHtml(u.name)} ${me?'<span class="lb-you">You</span>':''}</div>
-        <div class="lb-meta"><span class="live-dot"></span>${u.perf} perfect · ${ago}</div>
-      </div>
-      <div class="lb-scoreblock">
-        <div class="lb-score">${u.score}</div>
-        <div class="lb-scorelbl">PTS</div>
-      </div>
-    </div>`;
-}
-
 function timeAgo(ts){
   const d = Date.now()-ts;
   const m = Math.floor(d/60000);
@@ -1264,7 +1275,7 @@ function buildGrid(){
       const card=document.createElement('div');
       let cls='dc'; if(fut)cls+=' fut'; if(tod)cls+=' tod'; if(perf)cls+=' perf'; if(past)cls+=' past';
       card.className=cls;
-      card.innerHTML=`${past?'<div class="lk">🔒</div>':''}<div class="dc-n">${String(i+1).padStart(2,'0')}</div><div class="dc-dots"><div class="d s${salatDone(e)?' on':''}"></div><div class="d g${e.gym?' on':''}"></div><div class="d f${e.food?' on':''}"></div><div class="d a${e.ahmed?' on':''}"></div></div>`;
+      card.innerHTML=`<div class="dc-n">${String(i+1).padStart(2,'0')}</div><div class="dc-dots"><div class="d s${salatDone(e)?' on':''}"></div><div class="d g${e.gym?' on':''}"></div><div class="d f${e.food?' on':''}"></div><div class="d a${e.ahmed?' on':''}"></div></div>`;
       if(past) card.onclick=()=>openSheet(i);
       if(tod) card.onclick=()=>{ switchTab('me',document.querySelectorAll('.tab')[0]); scrollToToday(); };
       row.appendChild(card);
@@ -1273,17 +1284,78 @@ function buildGrid(){
 }
 
 function openSheet(i){
+  window._sheetDay = i; // track which day is open
+  renderSheet(i);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function renderSheet(i){
   const days=getDays(), e=days[dk(i)]||{};
   document.getElementById('shDay').textContent='Day '+(i+1);
   document.getElementById('shDate').textContent=dateFor(i).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  // remove "view only" banner
+  const banner = document.getElementById('shBanner');
+  if(banner) banner.style.display='none';
+
   const cont=document.getElementById('shHabits'); cont.innerHTML='';
+
+  // SALAT — expandable with toggleable prayers
   const cnt=salatCount(e), allP=salatDone(e);
-  const sr=document.createElement('div'); sr.className='sh-row'+(allP?' on-row':'');
-  sr.innerHTML=`<div class="sh-rl"><div class="sh-ico">🕌</div><div><div class="sh-nm">Salat</div><div class="sh-sm">${cnt}/5 prayers</div></div></div><div class="tog${allP?' on':''}"></div>`;
-  cont.appendChild(sr);
-  PRAYERS.forEach(p=>{ const done=!!e['p_'+p.key]; const pr=document.createElement('div'); pr.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:7px 14px 7px 56px;'; pr.innerHTML=`<div style="font-size:11px;color:${done?'var(--amber)':'var(--textMuted)'};">${done?'✓':'—'} ${p.name}</div><div style="font-size:9px;color:var(--textMuted);">${p.time}</div>`; cont.appendChild(pr); });
-  ['gym','food','ahmed'].forEach(h=>{ const done=!!e[h], m=META[h]; const r=document.createElement('div'); r.className='sh-row'+(done?' on-row':''); r.innerHTML=`<div class="sh-rl"><div class="sh-ico">${m.emoji}</div><div><div class="sh-nm">${m.label}</div><div class="sh-sm">${m.sub}</div></div></div><div class="tog${done?' on':''}"></div>`; cont.appendChild(r); });
-  document.getElementById('overlay').classList.add('open');
+  const salatWrap = document.createElement('div');
+  const sr=document.createElement('div'); sr.className='sh-row'+(allP?' on-row':''); sr.style.cursor='pointer';
+  sr.innerHTML=`<div class="sh-rl"><div class="sh-ico">🕌</div><div><div class="sh-nm">Salat</div><div class="sh-sm" id="sh-salat-sub">${cnt}/5 prayers</div></div></div><div class="tog${allP?' on':''}" id="sh-salat-tog"></div>`;
+  let prayersOpen=false;
+  const pWrap=document.createElement('div'); pWrap.style.cssText='display:none;flex-direction:column;gap:4px;padding:4px 14px 6px 56px;';
+  PRAYERS.forEach(p=>{
+    const done=!!e['p_'+p.key];
+    const pr=document.createElement('div');
+    pr.className='p-row'+(done?' on':''); pr.id='sh-pr-'+p.key;
+    pr.innerHTML=`<div><div class="p-name">${p.name}</div><div class="p-time">${p.time}</div></div><div class="p-chk${done?' on':''}" id="sh-pc-${p.key}">${done?'✓':''}</div>`;
+    pr.onclick=e2=>{ e2.stopPropagation(); toggleSheetPrayer(p.key,i); };
+    pWrap.appendChild(pr);
+  });
+  sr.onclick=()=>{ prayersOpen=!prayersOpen; pWrap.style.display=prayersOpen?'flex':'none'; };
+  salatWrap.appendChild(sr); salatWrap.appendChild(pWrap); cont.appendChild(salatWrap);
+
+  // GYM, FOOD, AHMED
+  ['gym','food','ahmed'].forEach(h=>{
+    const done=!!e[h], m=META[h];
+    const r=document.createElement('div'); r.className='sh-row'+(done?' on-row':''); r.style.cursor='pointer';
+    r.id='sh-row-'+h;
+    r.innerHTML=`<div class="sh-rl"><div class="sh-ico">${m.emoji}</div><div><div class="sh-nm">${m.label}</div><div class="sh-sm">${m.sub}</div></div></div><div class="tog${done?' on':''}" id="sh-tog-${h}"></div>`;
+    r.onclick=()=>toggleSheetHabit(h,i);
+    cont.appendChild(r);
+  });
+}
+
+function toggleSheetPrayer(pkey, i){
+  const days=getDays(), entry=days[dk(i)]||{};
+  entry['p_'+pkey]=!entry['p_'+pkey];
+  days[dk(i)]=entry; saveDays(days);
+  // update UI
+  const done=entry['p_'+pkey];
+  const pr=document.getElementById('sh-pr-'+pkey), pc=document.getElementById('sh-pc-'+pkey);
+  if(pr) pr.className='p-row'+(done?' on':'');
+  if(pc){ pc.className='p-chk'+(done?' on':''); pc.textContent=done?'✓':''; }
+  const cnt=salatCount(entry), all=cnt===5;
+  const sub=document.getElementById('sh-salat-sub'), tog=document.getElementById('sh-salat-tog');
+  const row=tog&&tog.parentElement; if(row) row.className='sh-row'+(all?' on-row':'');
+  if(sub) sub.textContent=cnt+'/5 prayers';
+  if(tog){ tog.className='tog'+(all?' on':''); }
+  buildGrid(); updateStats();
+  showToast(done?'✓ '+pkey.charAt(0).toUpperCase()+pkey.slice(1)+' saved':'Unmarked');
+}
+
+function toggleSheetHabit(h, i){
+  const days=getDays(), entry=days[dk(i)]||{};
+  entry[h]=!entry[h];
+  days[dk(i)]=entry; saveDays(days);
+  const done=entry[h];
+  const row=document.getElementById('sh-row-'+h), tog=document.getElementById('sh-tog-'+h);
+  if(row) row.className='sh-row'+(done?' on-row':'');
+  if(tog) tog.className='tog'+(done?' on':'');
+  buildGrid(); updateStats();
+  showToast(done?'✓ '+META[h].label+' saved':'Unmarked');
 }
 function closeSheet(){ document.getElementById('overlay').classList.remove('open'); }
 function handleOverlay(e){ if(e.target===document.getElementById('overlay')) closeSheet(); }
@@ -1308,6 +1380,228 @@ function spawnParticles(){
     p.style.cssText=`width:${sz}px;height:${sz}px;left:${cx}px;top:${cy}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-60}px;animation-duration:${.6+Math.random()*.4}s;`;
     document.body.appendChild(p); setTimeout(()=>p.remove(),1200);
   }
+}
+
+/* ============================================================
+   MILESTONES
+   ============================================================ */
+const MILESTONE_LIST = [
+  {day:7,  icon:'🌱', label:'First Week'},
+  {day:14, icon:'💪', label:'Two Weeks'},
+  {day:30, icon:'🔥', label:'One Month'},
+  {day:60, icon:'⚡', label:'60 Days'},
+  {day:90, icon:'👑', label:'Champion'},
+];
+function buildMilestones(){
+  const sec = document.getElementById('milestonesSection');
+  const ti = todayIdx();
+  const days = getDays();
+  // count perfect days up to now
+  let perf = 0;
+  for(let i=0;i<=Math.min(ti,TOTAL-1);i++) if(isPerfect(days[dk(i)])) perf++;
+
+  sec.innerHTML = `<div class="sec-lbl" style="padding:0 16px;margin-bottom:12px;">Milestones</div><div class="milestones-row">${
+    MILESTONE_LIST.map(m=>{
+      const unlocked = perf >= m.day;
+      return `<div class="milestone${unlocked?' unlocked':''}">
+        <div class="milestone-icon">${m.icon}</div>
+        <div class="milestone-day">Day ${m.day}</div>
+        <div class="milestone-label">${m.label}</div>
+      </div>`;
+    }).join('')
+  }</div>`;
+}
+
+/* ============================================================
+   WEEKLY WINNER
+   ============================================================ */
+function getWeeklyWinner(crew){
+  const ti = todayIdx();
+  const weekStart = Math.floor(ti/7)*7;
+  let best = null, bestScore = -1;
+  Object.entries(crew).forEach(([uid,u])=>{
+    let s = 0;
+    for(let i=weekStart;i<=Math.min(weekStart+6,ti);i++){
+      const e=(u.days||{})[dk(i)]||{};
+      if(isPerfect(e)) s+=10;
+      else{ if(salatDone(e)) s+=3; else s+=salatCount(e)*.5; if(e.gym) s+=1.5; if(e.food) s+=1.5; if(e.ahmed) s+=1; }
+    }
+    if(s>bestScore){ bestScore=s; best={uid,name:u.name,photo:u.photo,score:Math.round(s*10)/10}; }
+  });
+  return best;
+}
+
+/* ============================================================
+   STREAK CALC
+   ============================================================ */
+function getStreak(days){
+  const ti = todayIdx();
+  let streak = 0;
+  for(let i=Math.min(ti,TOTAL-1);i>=0;i--){
+    if(isPerfect(days[dk(i)])) streak++;
+    else break;
+  }
+  return streak;
+}
+
+/* update renderLeaderboard to include weekly winner + streaks */
+function renderLeaderboard(){
+  const body = document.getElementById('lbBody');
+  const crew = getCrew();
+  const myUid = getUid();
+  const p = getProfile() || {};
+  crew[myUid] = crew[myUid] || {};
+  crew[myUid].name = p.name || 'You';
+  crew[myUid].photo = p.photo || null;
+  crew[myUid].days = getDays();
+  crew[myUid].updatedAt = Date.now();
+
+  const list = Object.entries(crew).map(([uid,u])=>{
+    const {score,perf} = computeScore(u.days||{});
+    const streak = getStreak(u.days||{});
+    return { uid, name:u.name||'Anon', photo:u.photo, score, perf, streak, updatedAt:u.updatedAt||0, days:u.days||{} };
+  }).sort((a,b)=>{
+    if(b.score !== a.score) return b.score - a.score;
+    return (b.perf||0) - (a.perf||0);
+  });
+
+  if(list.length === 0){
+    body.innerHTML = `<div class="lb-empty"><div class="lb-empty-emoji">👥</div>No one in the crew yet.</div>`;
+    return;
+  }
+
+  // weekly winner
+  const winner = getWeeklyWinner(crew);
+  const myStreak = getStreak(getDays());
+  const winnerHtml = winner ? `
+    <div class="weekly-winner">
+      <div class="ww-icon">🏆</div>
+      <div class="ww-info">
+        <div class="ww-label">This Week's Leader</div>
+        <div class="ww-name">${escapeHtml(winner.name)}</div>
+        <div class="ww-sub">${winner.score} pts this week</div>
+      </div>
+    </div>` : '';
+
+  const listHtml = `<div class="lb-list">${list.map((u,idx)=>lbRowFull(u,idx+1,myUid)).join('')}</div>`;
+
+  body.innerHTML = winnerHtml + listHtml + `
+    <div class="crew-footer">
+      <button class="crew-mini-btn" onclick="syncNow()">↻ Refresh</button>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-uid]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const uid = el.getAttribute('data-uid');
+      if(uid !== myUid) openFriendView(uid);
+    });
+  });
+}
+
+function lbRowFull(u, rank, myUid){
+  const me = u.uid === myUid;
+  const ini = (u.name||'?').charAt(0).toUpperCase();
+  const avatar = u.photo ? `<img src="${u.photo}" alt=""/>` : ini;
+  const ago = u.updatedAt ? timeAgo(u.updatedAt) : 'never';
+  const topCls = rank===1?'top1':rank===2?'top2':rank===3?'top3':'';
+  const rankDisplay = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+  const streakCls = u.streak>=7?'fire':u.streak>=3?'hot':'';
+  const streakHtml = u.streak>0 ? `<span class="streak-badge ${streakCls}">🔥${u.streak}</span>` : '';
+  return `
+    <div class="lb-row ${me?'me':''} ${topCls}" data-uid="${u.uid}" style="cursor:${me?'default':'pointer'};animation-delay:${rank*60}ms;">
+      <div class="lb-rank">${rankDisplay}</div>
+      <div class="lb-avatar">${avatar}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escapeHtml(u.name)} ${me?'<span class="lb-you">You</span>':''} ${streakHtml}</div>
+        <div class="lb-meta"><span class="live-dot"></span>${u.perf} perfect · ${ago}</div>
+      </div>
+      <div class="lb-scoreblock">
+        <div class="lb-score">${u.score}</div>
+        <div class="lb-scorelbl">PTS</div>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   CHAT
+   ============================================================ */
+let chatSyncInterval = null;
+let lastMessageTime = null;
+
+async function loadMessages(){
+  const el = document.getElementById('chatMessages');
+  try{
+    const r = await fetch(sbUrl('/messages?select=*&order=created_at.asc&limit=100'), { headers: sbHeaders() });
+    if(!r.ok) throw new Error('fetch failed');
+    const msgs = await r.json();
+    renderMessages(msgs);
+  }catch(e){
+    el.innerHTML = `<div style="text-align:center;color:var(--textMuted);font-size:12px;padding:30px;">Could not load messages</div>`;
+  }
+}
+
+function renderMessages(msgs){
+  const el = document.getElementById('chatMessages');
+  const myUid = getUid();
+  if(!msgs.length){
+    el.innerHTML = `<div style="text-align:center;color:var(--textMuted);font-size:12px;padding:40px 20px;">No messages yet.<br>Start the conversation 👋</div>`;
+    return;
+  }
+  let html = '';
+  let lastDate = null;
+  msgs.forEach(m=>{
+    const mine = m.uid === myUid;
+    const d = new Date(m.created_at);
+    const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    if(dateStr !== lastDate){
+      html += `<div class="chat-day-divider">${dateStr}</div>`;
+      lastDate = dateStr;
+    }
+    const timeStr = d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const ini = (m.name||'?').charAt(0).toUpperCase();
+    const av = m.photo ? `<img src="${m.photo}" alt=""/>` : ini;
+    html += `
+      <div class="chat-msg${mine?' mine':''}">
+        <div class="chat-av">${av}</div>
+        <div class="chat-bubble-wrap">
+          ${!mine?`<div class="chat-sender">${escapeHtml(m.name)}</div>`:''}
+          <div class="chat-bubble">${escapeHtml(m.text)}</div>
+          <div class="chat-time">${timeStr}</div>
+        </div>
+      </div>`;
+  });
+  el.innerHTML = html;
+  el.scrollTop = el.scrollHeight;
+  if(msgs.length) lastMessageTime = msgs[msgs.length-1].created_at;
+}
+
+async function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const text = (input.value||'').trim();
+  if(!text) return;
+  input.value = '';
+  const p = getProfile()||{};
+  try{
+    const headers = sbHeaders();
+    headers['Prefer'] = 'return=representation';
+    await fetch(sbUrl('/messages'), {
+      method:'POST',
+      headers,
+      body: JSON.stringify({
+        uid: getUid(),
+        name: p.name||'Anon',
+        photo: p.photo||null,
+        text
+      })
+    });
+    await loadMessages();
+  }catch(e){ showToast('Failed to send'); input.value = text; }
+}
+
+function startChatSync(){
+  if(chatSyncInterval) clearInterval(chatSyncInterval);
+  chatSyncInterval = setInterval(loadMessages, 5000);
 }
 
 /* ============================================================
