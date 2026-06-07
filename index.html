@@ -571,21 +571,22 @@ input[type=file]{display:none;}
       </div>
     </div>
 
-    <!-- CHAT TAB -->
-    <div id="tabChat" class="tab-content" style="display:none;">
-      <div class="chat-wrap">
-        <div class="chat-header">
-          <div class="chat-title"><em>Crew</em> Chat</div>
-          <div class="chat-sub">Just the squad</div>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-          <div class="lb-loading"><div class="lb-spinner"></div><span>Loading...</span></div>
-        </div>
-        <div class="chat-input-wrap">
-          <input class="chat-input" id="chatInput" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMessage();event.preventDefault();}"/>
-          <button class="chat-send" onclick="sendMessage()">→</button>
-        </div>
-      </div>
+  </div>
+</div>
+
+<!-- CHAT — fullscreen fixed overlay -->
+<div id="tabChat" style="display:none;position:fixed;inset:0;z-index:50;background:var(--bg);flex-direction:column;">
+  <div style="display:flex;flex-direction:column;height:100%;">
+    <div class="chat-header" style="padding:52px 16px 10px;">
+      <div class="chat-title"><em>Crew</em> Chat</div>
+      <div class="chat-sub">Just the squad</div>
+    </div>
+    <div class="chat-messages" id="chatMessages" style="flex:1;overflow-y:auto;padding:12px 12px 6px;display:flex;flex-direction:column;gap:2px;scrollbar-width:none;">
+      <div class="lb-loading"><div class="lb-spinner"></div><span>Loading...</span></div>
+    </div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chatInput" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMessage();event.preventDefault();}"/>
+      <button class="chat-send" onclick="sendMessage()">→</button>
     </div>
   </div>
 </div>
@@ -1607,8 +1608,10 @@ function renderMessages(msgs){
   let lastDate = null;
   let lastUid = null;
 
+  const myName = (getProfile()||{}).name||'';
   msgs.forEach((m, idx)=>{
-    const mine = m.uid === myUid;
+    // uid match preferred; fall back to name match if uid missing
+    const mine = myUid && m.uid ? (m.uid === myUid) : (m.name === myName && !!myName);
     const d = new Date(m.created_at);
     const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
     if(dateStr !== lastDate){
