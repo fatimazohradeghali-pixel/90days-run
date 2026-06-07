@@ -357,6 +357,9 @@ input[type=file]{display:none;}
   line-height:1.45;
   word-break:break-word;
   max-width:100%;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
 }
 /* MY bubble — gold, right side, iOS style */
 .msg-bubble.mine{
@@ -1737,7 +1740,7 @@ function renderMessages(msgs){
     if(mine){
       html += `
         <div class="msg-row mine${gapClass}" id="msgrow-${m.id}">
-          <div class="msg-inner mine" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true)" ontouchend="cancelMsgHold()">
+          <div class="msg-inner mine" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true);event.preventDefault()" ontouchend="cancelMsgHold()">
             <div class="msg-bubble mine" id="msgbub-${m.id}">${escapeHtml(m.text)}</div>
             ${reactHtml}
             ${seenHtml}
@@ -1751,7 +1754,7 @@ function renderMessages(msgs){
       html += `
         <div class="msg-row other${gapClass}" id="msgrow-${m.id}">
           <div class="chat-av${avHidden}" style="background:${color}22;border-color:${color}44;color:${color}">${avContent}</div>
-          <div class="msg-inner other" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false)" ontouchend="cancelMsgHold()">
+          <div class="msg-inner other" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false);event.preventDefault()" ontouchend="cancelMsgHold()">
             ${nameHtml}
             <div class="msg-bubble other" style="border-color:${color}22;">${escapeHtml(m.text)}</div>
             ${reactHtml}
@@ -1857,7 +1860,13 @@ function openMsgCtx(msgId, text, isMine, e){
 function closeMsgCtx(){
   document.getElementById('msgCtxOverlay').classList.remove('open');
   document.getElementById('msgCtxSheet').classList.remove('open');
-  document.getElementById('msgCtxBubble').innerHTML = '';
+  document.getElementById('msgCtxEmojis').style.display = 'none';
+  document.getElementById('msgCtxBubble').style.opacity = '0';
+  setTimeout(()=>{
+    document.getElementById('msgCtxBubble').innerHTML = '';
+    document.getElementById('msgCtxBubble').style.opacity = '';
+    document.getElementById('msgCtxEmojis').style.display = '';
+  }, 260);
   _ctxMsgId = null;
 }
 
@@ -1869,15 +1878,15 @@ function _getCurrentReactions(msgId){
 
 async function toggleReaction(msgId, emoji){
   const myUid = getUid(); if(!myUid) return;
-  // fetch current reactions for this message
+  closeMsgCtx(); // close the context menu immediately
   try{
     const r = await fetch(sbUrl('/messages?id=eq.'+msgId+'&select=reactions'), {headers: sbHeaders()});
     const rows = await r.json();
     const reactions = rows[0]?.reactions ? (typeof rows[0].reactions==='string'?JSON.parse(rows[0].reactions):rows[0].reactions) : {};
     if(!reactions[emoji]) reactions[emoji] = [];
     const idx = reactions[emoji].indexOf(myUid);
-    if(idx > -1) reactions[emoji].splice(idx,1); // untoggle
-    else reactions[emoji].push(myUid);            // toggle on
+    if(idx > -1) reactions[emoji].splice(idx,1);
+    else reactions[emoji].push(myUid);
     await fetch(sbUrl('/messages?id=eq.'+msgId), {
       method:'PATCH', headers: sbHeaders(),
       body: JSON.stringify({reactions})
