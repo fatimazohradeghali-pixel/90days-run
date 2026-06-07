@@ -326,7 +326,7 @@ input[type=file]{display:none;}
 .chat-title{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:-1px;}
 .chat-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--goldLight));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .chat-sub{font-size:8px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--textMuted);margin-top:2px;}
-.chat-messages{flex:1;overflow-y:auto;padding:12px 14px 8px;display:flex;flex-direction:column;gap:4px;scrollbar-width:none;}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px 8px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;scrollbar-width:none;}
 .chat-messages::-webkit-scrollbar{display:none;}
 .chat-msg{display:flex;gap:8px;align-items:flex-end;animation:msgIn .25s ease both;}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
