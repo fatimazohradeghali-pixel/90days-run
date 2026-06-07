@@ -408,17 +408,29 @@ input[type=file]{display:none;}
 .reaction-pill.mine .r-count{color:var(--gold);}
 
 /* emoji picker */
-.emoji-picker{display:none;position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:8px 10px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:200;gap:4px;flex-wrap:wrap;width:200px;}
-.emoji-picker.open{display:flex;}
-.ep-emoji{font-size:22px;cursor:pointer;padding:4px;border-radius:8px;transition:background .12s;}
-.ep-emoji:active{background:var(--surface2);}
+/* ── WHATSAPP-STYLE MESSAGE CONTEXT MENU ── */
+/* dim overlay */
+.msg-ctx-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);}
+.msg-ctx-overlay.open{display:block;}
 
-/* message action buttons */
-.msg-actions{display:none;align-items:center;gap:4px;margin-right:6px;align-self:center;}
-.msg-row.mine.show-actions .msg-actions{display:flex;}
-.msg-act-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:5px 8px;font-size:14px;cursor:pointer;transition:background .15s;}
-.msg-act-btn:active{background:var(--border);}
-.msg-act-btn.del:active{background:rgba(239,68,68,.2);}
+/* the bubble clone that floats above */
+.msg-ctx-bubble{position:fixed;z-index:302;max-width:75%;pointer-events:none;transition:opacity .15s;}
+
+/* quick-emoji bar above bubble */
+.msg-ctx-emojis{position:fixed;z-index:303;display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px 10px;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+.ctx-emoji{font-size:26px;cursor:pointer;padding:4px 5px;border-radius:50%;transition:transform .12s,background .12s;}
+.ctx-emoji:active{transform:scale(1.25);}
+.ctx-emoji.reacted{background:rgba(201,146,42,.2);}
+
+/* bottom sheet with actions */
+.msg-ctx-sheet{position:fixed;bottom:-200px;left:0;right:0;z-index:303;background:var(--surface);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:8px 0 34px;transition:bottom .25s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.5);}
+.msg-ctx-sheet.open{bottom:0;}
+.ctx-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:6px auto 14px;}
+.ctx-action{display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s;}
+.ctx-action:active{background:var(--surface2);}
+.ctx-action .ctx-icon{font-size:20px;width:28px;text-align:center;}
+.ctx-action.danger{color:var(--red);}
+.ctx-divider{height:1px;background:var(--border);margin:4px 0;}
 
 /* weekly winner banner */
 .weekly-winner{background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(232,184,75,.05));border:1px solid rgba(201,146,42,.3);border-radius:16px;padding:14px 16px;margin:0 16px 16px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
@@ -1725,11 +1737,7 @@ function renderMessages(msgs){
     if(mine){
       html += `
         <div class="msg-row mine${gapClass}" id="msgrow-${m.id}">
-          <div class="msg-actions" id="msgact-${m.id}">
-            <button class="msg-act-btn edit" onclick="editMessage('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}')">✏️</button>
-            <button class="msg-act-btn del" onclick="deleteMessage('${m.id}')">🗑️</button>
-          </div>
-          <div class="msg-inner mine" oncontextmenu="toggleMsgActions('${m.id}',event)" ontouchstart="startMsgHold('${m.id}')" ontouchend="cancelMsgHold()">
+          <div class="msg-inner mine" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',true)" ontouchend="cancelMsgHold()">
             <div class="msg-bubble mine" id="msgbub-${m.id}">${escapeHtml(m.text)}</div>
             ${reactHtml}
             ${seenHtml}
@@ -1743,7 +1751,7 @@ function renderMessages(msgs){
       html += `
         <div class="msg-row other${gapClass}" id="msgrow-${m.id}">
           <div class="chat-av${avHidden}" style="background:${color}22;border-color:${color}44;color:${color}">${avContent}</div>
-          <div class="msg-inner other" ontouchstart="startMsgHold('${m.id}','react')" ontouchend="cancelMsgHold()" oncontextmenu="showEmojiPicker('${m.id}',event)">
+          <div class="msg-inner other" oncontextmenu="openMsgCtx('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false,event)" ontouchstart="startMsgHold('${m.id}','${escapeHtml(m.text).replace(/'/g,"\\'")}',false)" ontouchend="cancelMsgHold()">
             ${nameHtml}
             <div class="msg-bubble other" style="border-color:${color}22;">${escapeHtml(m.text)}</div>
             ${reactHtml}
@@ -1769,7 +1777,7 @@ const QUICK_EMOJIS = ['👍','❤️','😂','🔥','💪','😮','😢','🫡']
 
 function buildReactionsHtml(m, mine, myUid){
   const reactions = m.reactions ? (typeof m.reactions === 'string' ? JSON.parse(m.reactions) : m.reactions) : {};
-  if(!Object.keys(reactions).length) return `<div class="msg-reactions" id="reacts-${m.id}"><button class="reaction-pill" style="opacity:.4;font-size:11px;" onclick="showEmojiPicker('${m.id}',event)">😊 +</button></div>`;
+  if(!Object.keys(reactions).length) return `<div class="msg-reactions" id="reacts-${m.id}"></div>`;
   let html = `<div class="msg-reactions" id="reacts-${m.id}">`;
   for(const [emoji, uids] of Object.entries(reactions)){
     if(!uids.length) continue;
@@ -1778,7 +1786,7 @@ function buildReactionsHtml(m, mine, myUid){
       ${emoji}<span class="r-count">${uids.length}</span>
     </div>`;
   }
-  html += `<button class="reaction-pill" style="opacity:.4;font-size:11px;padding:2px 6px;" onclick="showEmojiPicker('${m.id}',event)">+</button>`;
+
   html += `</div>`;
   return html;
 }
@@ -1797,21 +1805,67 @@ function buildSeenHtml(m, crew){
   return html;
 }
 
-function showEmojiPicker(msgId, e){
-  e.preventDefault(); e.stopPropagation();
-  const picker = document.getElementById('emojiPicker');
-  picker.innerHTML = QUICK_EMOJIS.map(em =>
-    `<span class="ep-emoji" onclick="toggleReaction('${msgId}','${em}');closePicker()">${em}</span>`
-  ).join('');
-  // position near the tap
-  const x = Math.min(e.clientX || (e.touches&&e.touches[0]?e.touches[0].clientX:100), window.innerWidth-210);
-  const y = Math.max((e.clientY || (e.touches&&e.touches[0]?e.touches[0].clientY:200)) - 60, 60);
-  picker.style.left = x+'px';
-  picker.style.top = y+'px';
-  picker.classList.add('open');
-  setTimeout(()=>document.addEventListener('click', closePicker, {once:true}), 50);
+/* ── WhatsApp-style context menu ── */
+let _ctxMsgId = null;
+
+function openMsgCtx(msgId, text, isMine, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  _ctxMsgId = msgId;
+
+  // find the bubble element and clone it into the floating spot
+  const bubble = document.querySelector('#msgrow-'+msgId+' .msg-bubble');
+  const ctxBubble = document.getElementById('msgCtxBubble');
+  if(bubble){
+    const rect = bubble.getBoundingClientRect();
+    ctxBubble.innerHTML = bubble.outerHTML;
+    ctxBubble.style.cssText = `position:fixed;z-index:302;max-width:75%;pointer-events:none;
+      ${isMine?'right:12px':'left:46px'};
+      top:${Math.max(rect.top, 100)}px;`;
+  }
+
+  // build emoji bar — position above bubble
+  const ctxEmojis = document.getElementById('msgCtxEmojis');
+  const reactions = _getCurrentReactions(msgId);
+  const myUid = getUid();
+  ctxEmojis.innerHTML = QUICK_EMOJIS.map(em => {
+    const reacted = reactions[em]&&reactions[em].includes(myUid);
+    return `<span class="ctx-emoji${reacted?' reacted':''}" onclick="toggleReaction('${msgId}','${em}');closeMsgCtx()">${em}</span>`;
+  }).join('');
+  const bubbleTop = ctxBubble.style.top ? parseInt(ctxBubble.style.top) : 200;
+  ctxEmojis.style.cssText = `position:fixed;z-index:303;
+    ${isMine?'right:12px':'left:12px'};
+    top:${Math.max(bubbleTop - 62, 60)}px;`;
+
+  // build action sheet
+  const ctxActions = document.getElementById('msgCtxActions');
+  const safeText = text.replace(/'/g,"\'");
+  let actionsHtml = '';
+  if(isMine){
+    actionsHtml += `<div class="ctx-action" onclick="closeMsgCtx();editMessage('${msgId}','${safeText}')"><span class="ctx-icon">✏️</span>Edit Message</div>`;
+    actionsHtml += `<div class="ctx-divider"></div>`;
+    actionsHtml += `<div class="ctx-action danger" onclick="closeMsgCtx();deleteMessage('${msgId}')"><span class="ctx-icon">🗑️</span>Delete Message</div>`;
+  } else {
+    actionsHtml += `<div class="ctx-action" onclick="closeMsgCtx()"><span class="ctx-icon">📋</span>Copy Text</div>`;
+  }
+  ctxActions.innerHTML = actionsHtml;
+
+  // open everything
+  document.getElementById('msgCtxOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('msgCtxSheet').classList.add('open'), 10);
 }
-function closePicker(){ document.getElementById('emojiPicker').classList.remove('open'); }
+
+function closeMsgCtx(){
+  document.getElementById('msgCtxOverlay').classList.remove('open');
+  document.getElementById('msgCtxSheet').classList.remove('open');
+  document.getElementById('msgCtxBubble').innerHTML = '';
+  _ctxMsgId = null;
+}
+
+function _getCurrentReactions(msgId){
+  // read from already-rendered DOM to avoid extra fetch
+  const el = document.querySelector('#reacts-'+msgId);
+  return {}; // reactions fetched fresh on toggle anyway
+}
 
 async function toggleReaction(msgId, emoji){
   const myUid = getUid(); if(!myUid) return;
@@ -1833,23 +1887,14 @@ async function toggleReaction(msgId, emoji){
 }
 
 let _holdTimer = null;
-function startMsgHold(id, mode){
+function startMsgHold(id, text, isMine){
   _holdTimer = setTimeout(()=>{
-    if(mode==='react') showEmojiPicker(id, {preventDefault:()=>{},stopPropagation:()=>{},clientX:window.innerWidth/2,clientY:window.innerHeight/2});
-    else toggleMsgActions(id);
-  }, 500);
+    openMsgCtx(id, text||'', isMine||false, null);
+  }, 480);
 }
 function cancelMsgHold(){ clearTimeout(_holdTimer); }
 
-function toggleMsgActions(id, e){
-  if(e) e.preventDefault();
-  // hide all others first
-  document.querySelectorAll('.msg-row.mine.show-actions').forEach(r=>{
-    if(r.id !== 'msgrow-'+id) r.classList.remove('show-actions');
-  });
-  const row = document.getElementById('msgrow-'+id);
-  if(row) row.classList.toggle('show-actions');
-}
+// toggleMsgActions removed — using openMsgCtx now
 
 async function deleteMessage(id){
   if(!confirm('Delete this message?')) return;
@@ -1863,8 +1908,7 @@ async function deleteMessage(id){
 
 async function editMessage(id, currentText){
   // hide actions
-  const row = document.getElementById('msgrow-'+id);
-  if(row) row.classList.remove('show-actions');
+  // ctx closed before calling editMessage
   const input = document.getElementById('chatInput');
   input.value = currentText;
   input.focus();
@@ -1950,6 +1994,13 @@ window.addEventListener('load', ()=>{
   }, 3200);
 });
 </script>
-<div id="emojiPicker" class="emoji-picker"></div>
+<!-- WHATSAPP CONTEXT MENU -->
+<div id="msgCtxOverlay" class="msg-ctx-overlay" onclick="closeMsgCtx()"></div>
+<div id="msgCtxBubble" class="msg-ctx-bubble"></div>
+<div id="msgCtxEmojis" class="msg-ctx-emojis"></div>
+<div id="msgCtxSheet" class="msg-ctx-sheet">
+  <div class="ctx-handle"></div>
+  <div id="msgCtxActions"></div>
+</div>
 </body>
 </html>
